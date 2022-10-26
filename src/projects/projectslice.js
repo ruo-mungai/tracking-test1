@@ -19,6 +19,15 @@ export const saveNewProject = createAsyncThunk(
     return response.data;
   }
 );
+// updating project
+export const updateProject = createAsyncThunk("projects/updateAPI", async (payload) => {
+  const response = await axios.put(
+    `http://127.0.0.1:3000/projects/${payload.id}`,
+    payload
+  );
+  return response.data;
+});
+
  //instiall state 
 const initialState = {
   projectsData: [],
@@ -50,10 +59,20 @@ const projectslice = createSlice({
       state.projectsData.unshift(action.payload);
     });
  /////////// data add
+ builder.addCase(updateProject.pending, (state) => {
+   state.loading = "pending";
+ });
+ builder.addCase(updateProject.fulfilled, (state, action) => {
+   state.loading = "idle";
+   state.projectsData = state.projectsData.filter((_) => _.id !== action.payload.id);
+   state.projectsData.unshift(action.payload);
+ });
   },
 });
 
 export const getAllProjects = (state) => state.project.projectsData;
 export const getLoading = (state) => state.project.loading;
-
+export const getProjectById = (id) => {
+  return (state) => state.project.projectsData.filter((_) => _.id === id)[0];
+};
 export default projectslice.reducer;
